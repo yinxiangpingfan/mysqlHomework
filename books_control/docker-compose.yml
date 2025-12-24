@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8066:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=books_admin
+      - DB_PASS=books123456
+      - DB_NAME=used_books_platform
+
+  db:
+    build: ./mysql
+    ports:
+      - "3301:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123456
+      - MYSQL_DATABASE=used_books_platform
+      - MYSQL_USER=books_admin
+      - MYSQL_PASSWORD=books123456
+    volumes:
+      - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
