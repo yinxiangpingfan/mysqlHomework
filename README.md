@@ -3,40 +3,47 @@
 ## 1. 需求分析
 
 ### 项目概述
+
 校园二手教材循环交易平台是一个专为大学生设计的教材买卖系统，旨在实现教材资源的循环利用，减少学生的教材成本，促进校园内知识的传递。
 
 ### 功能需求
 
 #### 用户管理功能
+
 - 用户注册与登录
 - 个人信息管理
 - 信用评分系统
 - 用户活动统计
 
 #### 教材信息管理
+
 - 教材基本信息录入
 - 课程关联管理
 - 教材版本控制
 - 价格参考信息
 
 #### 商品发布与管理
+
 - 二手教材发布
 - 商品状态管理（可售、已预订、已售）
 - 商品搜索与筛选
 - 智能匹配推荐
 
 #### 求购需求管理
+
 - 求购信息发布
 - 需求匹配算法
 - 状态跟踪（求购中、已匹配、已关闭）
 
 #### 交易管理
+
 - 交易订单创建
 - 交易状态跟踪
 - 预约时间地点
 - 交易完成确认
 
 #### 评价系统
+
 - 交易双方互评
 - 教材质量评价
 - 描述准确性评价
@@ -45,327 +52,259 @@
 ### 界面原型设计
 
 #### 登陆界面
+
 ![登陆界面](docs/页面截图/登陆.png)
 
 #### 教材管理
+
 ![教材管理](docs/页面截图/教材管理.png)
 
 #### 首页界面
+
 ![首页界面](docs/页面截图/首页.png)
 
 #### 用户管理界面
+
 ![用户管理界面](docs/页面截图/用户管理.png)
 
 #### 商品发布界面
+
 ![商品发布界面](docs/页面截图/商品发布.png)
 
 #### 求购需求界面
+
 ![求购需求界面](docs/页面截图/求购需求.png)
 
 #### 交易管理界面
+
 ![交易管理界面](docs/页面截图/交易管理.png)
 
 #### 评价系统界面
+
 ![评价系统界面](docs/页面截图/评价系统.png)
 
 ## 2. 模块属性、唯一标识、存储特点
 
 ### 用户管理模块 (users)
+
 **唯一标识**: user_id (INT PRIMARY KEY AUTO_INCREMENT)
 **核心属性**:
+
 - username: 用户名，字符串，唯一
 - email: 邮箱地址，字符串，唯一  
 - password: 密码，哈希存储
 - student_id: 学号，字符串
 - credit_score: 信用评分，数值型(1.0-5.0)
-**存储特点**: 用户数据永久存储，支持级联删除，信用评分实时更新
+  **存储特点**: 用户数据永久存储，支持级联删除，信用评分实时更新
 
 ### 教材信息模块 (textbooks)
+
 **唯一标识**: book_id (INT PRIMARY KEY AUTO_INCREMENT)
 **核心属性**:
+
 - isbn: ISBN号码，字符串，唯一
 - title: 教材标题，字符串
 - course_code: 课程代码，字符串
 - original_price: 原价，数值型
-**存储特点**: 教材信息基础数据，相对稳定，支持版本控制
+  **存储特点**: 教材信息基础数据，相对稳定，支持版本控制
 
 ### 商品发布模块 (products)
+
 **唯一标识**: product_id (INT PRIMARY KEY AUTO_INCREMENT)
 **核心属性**:
+
 - seller_id: 卖家ID，外键关联users
 - book_id: 教材ID，外键关联textbooks
 - selling_price: 售价，数值型
 - condition_score: 新旧程度(1-10分)，数值型
 - status: 状态枚举(available/reserved/sold)
-**存储特点**: 商品数据动态更新，状态频繁变化，支持地理位置和图片存储
+  **存储特点**: 商品数据动态更新，状态频繁变化，支持地理位置和图片存储
 
 ### 求购需求模块 (purchase_requests)
+
 **唯一标识**: request_id (INT PRIMARY KEY AUTO_INCREMENT)
 **核心属性**:
+
 - buyer_id: 求购者ID，外键关联users
 - max_price: 最高预算，数值型，可为空
 - status: 状态枚举(active/matched/closed)
 - description: 详细描述，文本
-**存储特点**: 需求数据短期存储，状态变化频繁，支持智能匹配
+  **存储特点**: 需求数据短期存储，状态变化频繁，支持智能匹配
 
 ### 交易管理模块 (transactions)
+
 **唯一标识**: transaction_id (INT PRIMARY KEY AUTO_INCREMENT)
 **核心属性**:
+
 - product_id: 商品ID，外键关联products
 - buyer_id: 买家ID，外键关联users
 - seller_id: 卖家ID，外键关联users
 - price: 成交价格，数值型
 - status: 状态枚举(pending/confirmed/completed/cancelled)
-**存储特点**: 交易数据永久存储，状态链式更新，支持时间预约
+  **存储特点**: 交易数据永久存储，状态链式更新，支持时间预约
 
 ### 评价系统模块 (reviews)
+
 **唯一标识**: review_id (INT PRIMARY KEY AUTO_INCREMENT)
 **核心属性**:
+
 - transaction_id: 交易ID，外键关联transactions
 - reviewer_id: 评价者ID，外键关联users
 - reviewed_id: 被评价者ID，外键关联users
 - overall_score: 总体评分(1-10)，数值型
-**存储特点**: 评价数据永久存储，用于信用计算，单向关联
+  **存储特点**: 评价数据永久存储，用于信用计算，单向关联
 
 ## 3. 逻辑设计 - ER图
 
-```mermaid
-erDiagram
-    ADMINS {
-        int admin_id PK
-        string username UK
-        string password
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    USERS {
-        int user_id PK
-        string username UK
-        string password
-        string email UK
-        string phone
-        string student_id
-        decimal credit_score
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    TEXTBOOKS {
-        int book_id PK
-        string isbn UK
-        string title
-        string author
-        string publisher
-        string edition
-        string course_code
-        string course_name
-        string teacher_name
-        decimal original_price
-        timestamp created_at
-    }
-    
-    PRODUCTS {
-        int product_id PK
-        int seller_id FK
-        int book_id FK
-        int condition_score
-        decimal selling_price
-        string description
-        string status
-        string images
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    PURCHASE_REQUESTS {
-        int request_id PK
-        int buyer_id FK
-        int book_id FK
-        string isbn
-        string title
-        string course_code
-        decimal max_price
-        string description
-        string status
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    TRANSACTIONS {
-        int transaction_id PK
-        int product_id FK
-        int buyer_id FK
-        int seller_id FK
-        decimal price
-        string status
-        datetime appointment_time
-        string appointment_location
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    REVIEWS {
-        int review_id PK
-        int transaction_id FK
-        int reviewer_id FK
-        int reviewed_id FK
-        int book_condition_score
-        int description_accuracy_score
-        int overall_score
-        string comment
-        timestamp created_at
-    }
-
-    USERS ||--o{ PRODUCTS : "seller_id"
-    USERS ||--o{ PURCHASE_REQUESTS : "buyer_id"
-    USERS ||--o{ TRANSACTIONS : "buyer_id"
-    USERS ||--o{ TRANSACTIONS : "seller_id"
-    USERS ||--o{ REVIEWS : "reviewer_id"
-    USERS ||--o{ REVIEWS : "reviewed_id"
-    
-    TEXTBOOKS ||--o{ PRODUCTS : "book_id"
-    TEXTBOOKS ||--o{ PURCHASE_REQUESTS : "book_id"
-    
-    PRODUCTS ||--o{ TRANSACTIONS : "product_id"
-    TRANSACTIONS ||--o{ REVIEWS : "transaction_id"
-```
+![](docs/页面截图/Textbook%20Marketplace%20Review-2025-12-24-080623.png)
 
 ## 4. 数据库表结构设计
 
 ### 表数量统计
+
 本系统共设计 **7个数据表**：
 
 ### 表结构详细描述
 
 #### 4.1 管理员表 (admins)
+
 **表名**: `admins`
 **用途**: 存储平台管理员账户信息
 
-| 字段名 | 数据类型 | 长度 | 是否为空 | 默认值 | 说明 |
-|--------|----------|------|----------|--------|------|
-| admin_id | INT | - | NO | AUTO_INCREMENT | 管理员ID，主键 |
-| username | VARCHAR | 50 | NO | - | 用户名，唯一 |
-| password | VARCHAR | 255 | NO | - | 密码（MD5加密） |
-| created_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 创建时间 |
-| updated_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 更新时间 |
+| 字段名        | 数据类型      | 长度  | 是否为空 | 默认值               | 说明        |
+| ---------- | --------- | --- | ---- | ----------------- | --------- |
+| admin_id   | INT       | -   | NO   | AUTO_INCREMENT    | 管理员ID，主键  |
+| username   | VARCHAR   | 50  | NO   | -                 | 用户名，唯一    |
+| password   | VARCHAR   | 255 | NO   | -                 | 密码（MD5加密） |
+| created_at | TIMESTAMP | -   | NO   | CURRENT_TIMESTAMP | 创建时间      |
+| updated_at | TIMESTAMP | -   | NO   | CURRENT_TIMESTAMP | 更新时间      |
 
 #### 4.2 用户表 (users)
+
 **表名**: `users`
 **用途**: 存储平台用户基本信息
 
-| 字段名 | 数据类型 | 长度 | 是否为空 | 默认值 | 说明 |
-|--------|----------|------|----------|--------|------|
-| user_id | INT | - | NO | AUTO_INCREMENT | 用户ID，主键 |
-| username | VARCHAR | 50 | NO | - | 用户名，唯一 |
-| password | VARCHAR | 255 | NO | - | 密码（MD5加密） |
-| email | VARCHAR | 100 | NO | - | 邮箱地址，唯一 |
-| phone | VARCHAR | 20 | YES | NULL | 手机号码 |
-| student_id | VARCHAR | 20 | YES | NULL | 学号 |
-| credit_score | DECIMAL | 3,1 | NO | 5.0 | 信用评分(1.0-5.0) |
-| created_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 创建时间 |
-| updated_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 更新时间 |
+| 字段名          | 数据类型      | 长度  | 是否为空 | 默认值               | 说明            |
+| ------------ | --------- | --- | ---- | ----------------- | ------------- |
+| user_id      | INT       | -   | NO   | AUTO_INCREMENT    | 用户ID，主键       |
+| username     | VARCHAR   | 50  | NO   | -                 | 用户名，唯一        |
+| password     | VARCHAR   | 255 | NO   | -                 | 密码（MD5加密）     |
+| email        | VARCHAR   | 100 | NO   | -                 | 邮箱地址，唯一       |
+| phone        | VARCHAR   | 20  | YES  | NULL              | 手机号码          |
+| student_id   | VARCHAR   | 20  | YES  | NULL              | 学号            |
+| credit_score | DECIMAL   | 3,1 | NO   | 5.0               | 信用评分(1.0-5.0) |
+| created_at   | TIMESTAMP | -   | NO   | CURRENT_TIMESTAMP | 创建时间          |
+| updated_at   | TIMESTAMP | -   | NO   | CURRENT_TIMESTAMP | 更新时间          |
 
 #### 4.3 教材信息表 (textbooks)
+
 **表名**: `textbooks`
 **用途**: 存储教材基础信息
 
-| 字段名 | 数据类型 | 长度 | 是否为空 | 默认值 | 说明 |
-|--------|----------|------|----------|--------|------|
-| book_id | INT | - | NO | AUTO_INCREMENT | 教材ID，主键 |
-| isbn | VARCHAR | 20 | NO | - | ISBN号码，唯一 |
-| title | VARCHAR | 200 | NO | - | 教材标题 |
-| author | VARCHAR | 100 | YES | NULL | 作者 |
-| publisher | VARCHAR | 100 | YES | NULL | 出版社 |
-| edition | VARCHAR | 20 | YES | NULL | 版本信息 |
-| course_code | VARCHAR | 20 | YES | NULL | 课程代码 |
-| course_name | VARCHAR | 100 | YES | NULL | 课程名称 |
-| teacher_name | VARCHAR | 50 | YES | NULL | 任课教师 |
-| original_price | DECIMAL | 10,2 | YES | NULL | 原价 |
-| created_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 创建时间 |
+| 字段名            | 数据类型      | 长度   | 是否为空 | 默认值               | 说明        |
+| -------------- | --------- | ---- | ---- | ----------------- | --------- |
+| book_id        | INT       | -    | NO   | AUTO_INCREMENT    | 教材ID，主键   |
+| isbn           | VARCHAR   | 20   | NO   | -                 | ISBN号码，唯一 |
+| title          | VARCHAR   | 200  | NO   | -                 | 教材标题      |
+| author         | VARCHAR   | 100  | YES  | NULL              | 作者        |
+| publisher      | VARCHAR   | 100  | YES  | NULL              | 出版社       |
+| edition        | VARCHAR   | 20   | YES  | NULL              | 版本信息      |
+| course_code    | VARCHAR   | 20   | YES  | NULL              | 课程代码      |
+| course_name    | VARCHAR   | 100  | YES  | NULL              | 课程名称      |
+| teacher_name   | VARCHAR   | 50   | YES  | NULL              | 任课教师      |
+| original_price | DECIMAL   | 10,2 | YES  | NULL              | 原价        |
+| created_at     | TIMESTAMP | -    | NO   | CURRENT_TIMESTAMP | 创建时间      |
 
 #### 4.4 商品表 (products)
+
 **表名**: `products`
 **用途**: 存储用户发布的二手教材商品
 
-| 字段名 | 数据类型 | 长度 | 是否为空 | 默认值 | 说明 |
-|--------|----------|------|----------|--------|------|
-| product_id | INT | - | NO | AUTO_INCREMENT | 商品ID，主键 |
-| seller_id | INT | - | NO | - | 卖家ID，外键 |
-| book_id | INT | - | NO | - | 教材ID，外键 |
-| condition_score | TINYINT | - | NO | 5 | 新旧程度评分(1-10) |
-| selling_price | DECIMAL | 10,2 | NO | - | 售价 |
-| description | TEXT | - | YES | NULL | 商品描述 |
-| status | ENUM | - | NO | 'available' | 状态(available/reserved/sold) |
-| images | VARCHAR | 500 | YES | NULL | 图片路径(逗号分隔) |
-| created_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 创建时间 |
-| updated_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 更新时间 |
+| 字段名             | 数据类型      | 长度   | 是否为空 | 默认值               | 说明                          |
+| --------------- | --------- | ---- | ---- | ----------------- | --------------------------- |
+| product_id      | INT       | -    | NO   | AUTO_INCREMENT    | 商品ID，主键                     |
+| seller_id       | INT       | -    | NO   | -                 | 卖家ID，外键                     |
+| book_id         | INT       | -    | NO   | -                 | 教材ID，外键                     |
+| condition_score | TINYINT   | -    | NO   | 5                 | 新旧程度评分(1-10)                |
+| selling_price   | DECIMAL   | 10,2 | NO   | -                 | 售价                          |
+| description     | TEXT      | -    | YES  | NULL              | 商品描述                        |
+| status          | ENUM      | -    | NO   | 'available'       | 状态(available/reserved/sold) |
+| images          | VARCHAR   | 500  | YES  | NULL              | 图片路径(逗号分隔)                  |
+| created_at      | TIMESTAMP | -    | NO   | CURRENT_TIMESTAMP | 创建时间                        |
+| updated_at      | TIMESTAMP | -    | NO   | CURRENT_TIMESTAMP | 更新时间                        |
 
 **外键约束**:
+
 - seller_id → users(user_id)
 - book_id → textbooks(book_id)
 
 #### 4.5 求购需求表 (purchase_requests)
+
 **表名**: `purchase_requests`
 **用途**: 存储用户的求购需求信息
 
-| 字段名 | 数据类型 | 长度 | 是否为空 | 默认值 | 说明 |
-|--------|----------|------|----------|--------|------|
-| request_id | INT | - | NO | AUTO_INCREMENT | 需求ID，主键 |
-| buyer_id | INT | - | NO | - | 求购者ID，外键 |
-| book_id | INT | - | YES | NULL | 指定教材ID，外键 |
-| isbn | VARCHAR | 20 | YES | NULL | ISBN号码 |
-| title | VARCHAR | 200 | YES | NULL | 教材名称 |
-| course_code | VARCHAR | 20 | YES | NULL | 课程代码 |
-| max_price | DECIMAL | 10,2 | YES | NULL | 最高预算 |
-| description | TEXT | - | YES | NULL | 详细描述 |
-| status | ENUM | - | NO | 'active' | 状态(active/matched/closed) |
-| created_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 创建时间 |
-| updated_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 更新时间 |
+| 字段名         | 数据类型      | 长度   | 是否为空 | 默认值               | 说明                        |
+| ----------- | --------- | ---- | ---- | ----------------- | ------------------------- |
+| request_id  | INT       | -    | NO   | AUTO_INCREMENT    | 需求ID，主键                   |
+| buyer_id    | INT       | -    | NO   | -                 | 求购者ID，外键                  |
+| book_id     | INT       | -    | YES  | NULL              | 指定教材ID，外键                 |
+| isbn        | VARCHAR   | 20   | YES  | NULL              | ISBN号码                    |
+| title       | VARCHAR   | 200  | YES  | NULL              | 教材名称                      |
+| course_code | VARCHAR   | 20   | YES  | NULL              | 课程代码                      |
+| max_price   | DECIMAL   | 10,2 | YES  | NULL              | 最高预算                      |
+| description | TEXT      | -    | YES  | NULL              | 详细描述                      |
+| status      | ENUM      | -    | NO   | 'active'          | 状态(active/matched/closed) |
+| created_at  | TIMESTAMP | -    | NO   | CURRENT_TIMESTAMP | 创建时间                      |
+| updated_at  | TIMESTAMP | -    | NO   | CURRENT_TIMESTAMP | 更新时间                      |
 
 **外键约束**:
+
 - buyer_id → users(user_id)
 - book_id → textbooks(book_id)
 
 #### 4.6 交易记录表 (transactions)
+
 **表名**: `transactions`
 **用途**: 存储交易订单信息
 
-| 字段名 | 数据类型 | 长度 | 是否为空 | 默认值 | 说明 |
-|--------|----------|------|----------|--------|------|
-| transaction_id | INT | - | NO | AUTO_INCREMENT | 交易ID，主键 |
-| product_id | INT | - | NO | - | 商品ID，外键 |
-| buyer_id | INT | - | NO | - | 买家ID，外键 |
-| seller_id | INT | - | NO | - | 卖家ID，外键 |
-| price | DECIMAL | 10,2 | NO | - | 成交价格 |
-| status | ENUM | - | NO | 'pending' | 状态(pending/confirmed/completed/cancelled) |
-| appointment_time | DATETIME | - | YES | NULL | 预约时间 |
-| appointment_location | VARCHAR | 200 | YES | NULL | 预约地点 |
-| created_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 创建时间 |
-| updated_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 更新时间 |
+| 字段名                  | 数据类型      | 长度   | 是否为空 | 默认值               | 说明                                        |
+| -------------------- | --------- | ---- | ---- | ----------------- | ----------------------------------------- |
+| transaction_id       | INT       | -    | NO   | AUTO_INCREMENT    | 交易ID，主键                                   |
+| product_id           | INT       | -    | NO   | -                 | 商品ID，外键                                   |
+| buyer_id             | INT       | -    | NO   | -                 | 买家ID，外键                                   |
+| seller_id            | INT       | -    | NO   | -                 | 卖家ID，外键                                   |
+| price                | DECIMAL   | 10,2 | NO   | -                 | 成交价格                                      |
+| status               | ENUM      | -    | NO   | 'pending'         | 状态(pending/confirmed/completed/cancelled) |
+| appointment_time     | DATETIME  | -    | YES  | NULL              | 预约时间                                      |
+| appointment_location | VARCHAR   | 200  | YES  | NULL              | 预约地点                                      |
+| created_at           | TIMESTAMP | -    | NO   | CURRENT_TIMESTAMP | 创建时间                                      |
+| updated_at           | TIMESTAMP | -    | NO   | CURRENT_TIMESTAMP | 更新时间                                      |
 
 **外键约束**:
+
 - product_id → products(product_id)
 - buyer_id → users(user_id)
 - seller_id → users(user_id)
 
 #### 4.7 评价表 (reviews)
+
 **表名**: `reviews`
 **用途**: 存储交易评价信息
 
-| 字段名 | 数据类型 | 长度 | 是否为空 | 默认值 | 说明 |
-|--------|----------|------|----------|--------|------|
-| review_id | INT | - | NO | AUTO_INCREMENT | 评价ID，主键 |
-| transaction_id | INT | - | NO | - | 交易ID，外键 |
-| reviewer_id | INT | - | NO | - | 评价者ID，外键 |
-| reviewed_id | INT | - | NO | - | 被评价者ID，外键 |
-| book_condition_score | TINYINT | - | YES | NULL | 教材质量评分(1-10) |
-| description_accuracy_score | TINYINT | - | YES | NULL | 描述准确性评分(1-10) |
-| overall_score | TINYINT | - | YES | NULL | 总体评分(1-10) |
-| comment | TEXT | - | YES | NULL | 评价内容 |
-| created_at | TIMESTAMP | - | NO | CURRENT_TIMESTAMP | 创建时间 |
+| 字段名                        | 数据类型      | 长度  | 是否为空 | 默认值               | 说明            |
+| -------------------------- | --------- | --- | ---- | ----------------- | ------------- |
+| review_id                  | INT       | -   | NO   | AUTO_INCREMENT    | 评价ID，主键       |
+| transaction_id             | INT       | -   | NO   | -                 | 交易ID，外键       |
+| reviewer_id                | INT       | -   | NO   | -                 | 评价者ID，外键      |
+| reviewed_id                | INT       | -   | NO   | -                 | 被评价者ID，外键     |
+| book_condition_score       | TINYINT   | -   | YES  | NULL              | 教材质量评分(1-10)  |
+| description_accuracy_score | TINYINT   | -   | YES  | NULL              | 描述准确性评分(1-10) |
+| overall_score              | TINYINT   | -   | YES  | NULL              | 总体评分(1-10)    |
+| comment                    | TEXT      | -   | YES  | NULL              | 评价内容          |
+| created_at                 | TIMESTAMP | -   | NO   | CURRENT_TIMESTAMP | 创建时间          |
 
 **外键约束**:
+
 - transaction_id → transactions(transaction_id)
 - reviewer_id → users(user_id)
 - reviewed_id → users(user_id)
@@ -528,33 +467,40 @@ INSERT INTO reviews (transaction_id, reviewer_id, reviewed_id, book_condition_sc
 ### 6.1 用户管理模块
 
 #### 6.1.1 增加用户
+
 ```sql
 INSERT INTO users (username, password, email, phone, student_id, credit_score) 
 VALUES ('新用户', MD5('password123'), 'newuser@student.edu.cn', '13900139000', '2024001', 5.0);
 ```
+
 **执行结果截图**:
 ![增加用户执行结果](docs/代码运行结果/增加用户.png)
 
 #### 6.1.2 查询用户
+
 ```sql
 SELECT user_id, username, email, student_id, credit_score, created_at 
 FROM users 
 WHERE username LIKE '%张%' OR email LIKE '%student%' 
 ORDER BY created_at DESC;
 ```
+
 **执行结果截图**:
 ![查询用户执行结果](docs/代码运行结果/查询用户.png)
 
 #### 6.1.3 更新用户信息
+
 ```sql
 UPDATE users 
 SET credit_score = 4.5, phone = '13900139001' 
 WHERE user_id = 1;
 ```
+
 **执行结果截图**:
 ![更新用户执行结果](docs/代码运行结果/更新用户.png)
 
 #### 6.1.4 删除用户（级联删除）
+
 ```sql
 DELETE FROM reviews WHERE reviewer_id = 1 OR reviewed_id = 1;
 DELETE FROM transactions WHERE buyer_id = 1 OR seller_id = 1;
@@ -562,49 +508,59 @@ DELETE FROM purchase_requests WHERE buyer_id = 1;
 DELETE FROM products WHERE seller_id = 1;
 DELETE FROM users WHERE user_id = 1;
 ```
+
 **执行结果截图**:
 ![删除用户执行结果](docs/代码运行结果/删除用户（级联删除）.png)
 
 ### 6.2 教材信息管理模块
 
 #### 6.2.1 添加教材信息
+
 ```sql
 INSERT INTO textbooks (isbn, title, author, publisher, edition, course_code, course_name, teacher_name, original_price) 
 VALUES ('9787111234568', '数据结构', '严蔚敏', '清华大学出版社', '第3版', 'CS201', '数据结构', '王教授', 45.00);
 ```
+
 **执行结果截图**:
 ![添加教材信息执行结果](docs/代码运行结果/6.2.1.png)
 
 #### 6.2.2 查询教材信息
+
 ```sql
 SELECT book_id, title, author, course_code, original_price 
 FROM textbooks 
 WHERE course_code = 'CS101' OR title LIKE '%数学%' 
 ORDER BY original_price DESC;
 ```
+
 **执行结果截图**:
 ![查询教材信息执行结果](docs/代码运行结果/6.2.2.png)
 
 #### 6.2.3 更新教材信息
+
 ```sql
 UPDATE textbooks 
 SET original_price = 42.00 
 WHERE book_id = 1;
 ```
+
 **执行结果截图**:
 ![更新教材信息执行结果](docs/代码运行结果/6.2.3.png)
 
 ### 6.3 商品发布与管理模块
 
 #### 6.3.1 发布商品
+
 ```sql
 INSERT INTO products (seller_id, book_id, condition_score, selling_price, description, status) 
 VALUES (1, 1, 8, 35.00, '九成新，无笔记，保存完好', 'available');
 ```
+
 **执行结果截图**:
 ![发布商品执行结果](docs/代码运行结果/6.3.1.png)
 
 #### 6.3.2 查询商品列表
+
 ```sql
 SELECT p.product_id, u.username as seller_name, t.title, t.author, 
        p.condition_score, p.selling_price, p.status, p.created_at
@@ -614,37 +570,45 @@ LEFT JOIN textbooks t ON p.book_id = t.book_id
 WHERE p.status = 'available' 
 ORDER BY p.created_at DESC;
 ```
+
 **执行结果截图**:
 ![查询商品列表执行结果](docs/代码运行结果/6.3.2.png)
 
 #### 6.3.3 更新商品状态
+
 ```sql
 UPDATE products 
 SET status = 'sold' 
 WHERE product_id = 6;
 ```
+
 **执行结果截图**:
 ![更新商品状态执行结果](docs/代码运行结果/6.3.3.png)
 
 #### 6.3.4 删除商品
+
 ```sql
 DELETE FROM products 
 WHERE product_id = 1;
 ```
+
 **执行结果截图**:
 ![删除商品执行结果](docs/代码运行结果/6.3.4.png)
 
 ### 6.4 求购需求管理模块
 
 #### 6.4.1 发布求购需求
+
 ```sql
 INSERT INTO purchase_requests (buyer_id, book_id, max_price, description, status) 
 VALUES (2, 1, 30.00, '急需高等数学教材，价格可商量', 'active');
 ```
+
 **执行结果截图**:
 ![发布求购需求执行结果](docs/代码运行结果/6.4.1.png)
 
 #### 6.4.2 查询求购需求
+
 ```sql
 SELECT pr.request_id, u.username as buyer_name, t.title, 
        pr.max_price, pr.status, pr.description, pr.created_at
@@ -654,19 +618,23 @@ LEFT JOIN textbooks t ON pr.book_id = t.book_id
 WHERE pr.status = 'active' 
 ORDER BY pr.created_at DESC;
 ```
+
 **执行结果截图**:
 ![查询求购需求执行结果](docs/代码运行结果/6.4.2.png)
 
 #### 6.4.3 更新求购状态
+
 ```sql
 UPDATE purchase_requests 
 SET status = 'matched' 
 WHERE request_id = 1;
 ```
+
 **执行结果截图**:
 ![更新求购状态执行结果](docs/代码运行结果/6.4.3.png)
 
 #### 6.4.4 智能匹配查询
+
 ```sql
 -- 基于ISBN匹配
 SELECT p.product_id, t.title, t.author, u.username as seller_name, p.selling_price
@@ -676,20 +644,24 @@ LEFT JOIN users u ON p.seller_id = u.user_id
 WHERE t.isbn = '9787302123456' AND p.status = 'available'
 ORDER BY p.selling_price ASC;
 ```
+
 **执行结果截图**:
 ![智能匹配查询执行结果](docs/代码运行结果/6.4.4.png)
 
 ### 6.5 交易管理模块
 
 #### 6.5.1 创建交易
+
 ```sql
 INSERT INTO transactions (product_id, buyer_id, seller_id, price, status, appointment_time, appointment_location) 
 VALUES (1, 3, 1, 35.00, 'pending', '2025-12-25 15:00:00', '图书馆一楼大厅');
 ```
+
 **执行结果截图**:
 ![创建交易执行结果](docs/代码运行结果/6.5.1.png)
 
 #### 6.5.2 查询交易记录
+
 ```sql
 SELECT tr.transaction_id, t.title, u1.username as buyer_name, 
        u2.username as seller_name, tr.price, tr.status, 
@@ -701,29 +673,35 @@ LEFT JOIN users u1 ON tr.buyer_id = u1.user_id
 LEFT JOIN users u2 ON tr.seller_id = u2.user_id 
 ORDER BY tr.created_at DESC;
 ```
+
 **执行结果截图**:
 ![查询交易记录执行结果](docs/代码运行结果/6.5.2.png)
 
 #### 6.5.3 更新交易状态
+
 ```sql
 UPDATE transactions 
 SET status = 'completed' 
 WHERE transaction_id = 7;
 ```
+
 **执行结果截图**:
 ![更新交易状态执行结果](docs/代码运行结果/6.5.3.png)
 
 ### 6.6 评价系统模块
 
 #### 6.6.1 发布评价
+
 ```sql
 INSERT INTO reviews (transaction_id, reviewer_id, reviewed_id, book_condition_score, description_accuracy_score, overall_score, comment) 
 VALUES (7, 3, 2, 8, 9, 9, '卖家很热情，书保存得很好，和描述一致');
 ```
+
 **执行结果截图**:
 ![发布评价执行结果](docs/代码运行结果/6.6.1.png)
 
 #### 6.6.2 查询评价信息
+
 ```sql
 SELECT r.review_id, u1.username as reviewer_name, u2.username as reviewed_name,
        t.title, r.overall_score, r.comment, r.created_at
@@ -735,10 +713,12 @@ LEFT JOIN products p ON tr.product_id = p.product_id
 LEFT JOIN textbooks t ON p.book_id = t.book_id 
 ORDER BY r.created_at DESC;
 ```
+
 **执行结果截图**:
 ![查询评价信息执行结果](docs/代码运行结果/6.6.2.png)
 
 #### 6.6.3 更新信用评分
+
 ```sql
 -- 根据评价计算用户信用评分
 UPDATE users 
@@ -749,12 +729,14 @@ SET credit_score = (
 ) 
 WHERE user_id = 1;
 ```
+
 **执行结果截图**:
 ![更新信用评分执行结果](docs/代码运行结果/6.6.3.png)
 
 ### 6.7 统计查询
 
 #### 6.7.1 用户活动统计
+
 ```sql
 SELECT u.username,
        COUNT(DISTINCT p.product_id) as products_count,
@@ -767,10 +749,12 @@ LEFT JOIN transactions t ON u.user_id = t.buyer_id OR u.user_id = t.seller_id
 LEFT JOIN reviews r ON u.user_id = r.reviewed_id
 GROUP BY u.user_id, u.username;
 ```
+
 **执行结果截图**:
 ![用户活动统计执行结果](docs/代码运行结果/6.7.1.png)
 
 #### 6.7.2 平台统计信息
+
 ```sql
 SELECT 
     (SELECT COUNT(*) FROM users) as total_users,
@@ -779,6 +763,7 @@ SELECT
     (SELECT COUNT(*) FROM transactions WHERE status = 'completed') as completed_transactions,
     (SELECT AVG(credit_score) FROM users) as avg_credit_score;
 ```
+
 **执行结果截图**:
 ![平台统计信息执行结果](docs/代码运行结果/6.7.2.png)
 
@@ -789,6 +774,7 @@ SELECT
 本校园二手教材循环交易平台通过7个数据表的合理设计，完整实现了用户管理、教材信息管理、商品发布、求购需求、交易管理和评价系统等核心功能。系统采用MySQL数据库，支持UTF8MB4字符集，确保了中文数据的正确存储和处理。
 
 ### 系统特点：
+
 1. **数据完整性**：通过外键约束确保数据一致性
 2. **安全性**：密码MD5加密，用户权限管理
 3. **可扩展性**：模块化设计，便于功能扩展
